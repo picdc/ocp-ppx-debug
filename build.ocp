@@ -1,0 +1,4 @@
+begin program "ppx-debug";
+  files = [ "ppx_debug.ml" ];
+  requires = [ "compiler-libs.common" ]
+end
