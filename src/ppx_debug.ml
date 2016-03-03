@@ -127,8 +127,13 @@ end = struct
             Some g -> Some (wrap_expr m g)
           | None -> None);
         pc_rhs = wrap_expr m c.pc_rhs } in
-    { c' with pc_rhs =
-        add_debug_infos ?info:fname c'.pc_rhs enter_match leave_match}
+    { c' with
+      pc_rhs =
+        let info = match fname with
+            None -> Some (Format.asprintf "case: %a" Pprintast.pattern c.pc_lhs)
+          | Some s ->
+            Some (Format.asprintf "%s, case: %a" s Pprintast.pattern c.pc_lhs) in
+        add_debug_infos ?info c'.pc_rhs enter_match leave_match}
 
   and wrap_expr ?fname m e =
     match e.pexp_desc with
