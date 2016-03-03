@@ -3,8 +3,9 @@ begin program "my_ppx"
   requires = [ "ppx_debug" ]
 end
 
-begin program "test_ppx"
-  files = [ "test.ml" ]
-  requires = [ "my_ppx" ]
-  comp = [ "-ppx" "%{my_ppx_FULL_DST_DIR}%/my_ppx.asm" ]
+begin program "test_ppx";
+  files = [ "test.ml" ];
+  requires = [ "my_ppx"];
+  comp_requires = [ "my_ppx:asm" ];
+  comp = [ "-ppx" "%{my_ppx_FULL_DST_DIR}%/my_ppx.asm" ];
 end
