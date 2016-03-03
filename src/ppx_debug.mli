@@ -10,6 +10,9 @@ module type DebugIterator = sig
 
   val enter_for : ?info:string -> Parsetree.expression -> Parsetree.expression
   val leave_for : ?info:string -> Parsetree.expression -> Parsetree.expression
+
+  val enter_while : ?info:string -> Parsetree.expression -> Parsetree.expression
+  val leave_while : ?info:string -> Parsetree.expression -> Parsetree.expression
 end
 
 module DefaultIterator : DebugIterator
