@@ -144,7 +144,4 @@ end = struct
           { vb' with pvb_expr = wrap_let_function m vb'.pvb_expr ?fname });
     }
 
-  let _ =
-    register "debug" (fun _ -> wrap_debug)
-
 end
