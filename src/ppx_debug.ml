@@ -32,6 +32,8 @@ let add_debug_infos ?info exp enter leave =
   Exp.sequence ~loc enter exp'
 
 module type DebugIterator = sig
+  val name : string
+
   val enter_fun : ?info:string -> expression -> expression
   val leave_fun : ?info:string -> expression -> expression
 
@@ -53,6 +55,8 @@ module type DebugIterator = sig
 end
 
 module DefaultIterator = struct
+  let name = "default"
+
   let dummy exp =
     let loc = { txt = Lident "()"; loc = exp.pexp_loc} in
     { exp with pexp_desc = Pexp_construct (loc, None) }
@@ -74,9 +78,11 @@ module DefaultIterator = struct
 
   let enter_apply ?info exp = dummy exp
   let leave_apply ?info exp = dummy exp
+
 end
 
 module PrintIterator = struct
+  let name = "print"
 
   let enter_fun ?info exp =
     print ?info exp "Entering fun"
@@ -184,7 +190,7 @@ end = struct
       value_binding = wrap_value_binding;
     }
 
-  let _ =
-    register "debug" (fun _ -> wrap_debug)
+  let () =
+    register name (fun _ -> wrap_debug)
 
 end

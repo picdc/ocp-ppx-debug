@@ -1,4 +1,6 @@
 module type DebugIterator = sig
+  val name : string
+
   val enter_fun : ?info:string -> Parsetree.expression -> Parsetree.expression
   val leave_fun : ?info:string -> Parsetree.expression -> Parsetree.expression
 
