@@ -47,6 +47,9 @@ module type DebugIterator = sig
   val enter_while : ?info:string -> expression -> expression
   val leave_while : ?info:string -> expression -> expression
 
+  val enter_apply : ?info:string -> expression -> expression
+  val leave_apply : ?info:string -> expression -> expression
+
 end
 
 module DefaultIterator = struct
@@ -68,6 +71,9 @@ module DefaultIterator = struct
 
   let enter_while ?info exp = dummy exp
   let leave_while ?info exp = dummy exp
+
+  let enter_apply ?info exp = dummy exp
+  let leave_apply ?info exp = dummy exp
 end
 
 module PrintIterator = struct
@@ -96,6 +102,12 @@ module PrintIterator = struct
     print ?info exp "Entering while"
   let leave_while ?info exp =
     print ?info exp " Leaving while"
+
+
+  let enter_apply ?info exp =
+    print ?info exp "Calling fun"
+  let leave_apply ?info exp =
+    print ?info exp "End of call of"
 
 end
 
@@ -146,6 +158,12 @@ end = struct
     | Pexp_fun (l, eopt, p, e') ->
       Exp.fun_ l eopt p
         (add_debug_infos ?info:fname e' enter_fun leave_fun)
+    | Pexp_apply (f, args) ->
+      let f_str =
+        match f.pexp_desc with
+        | Pexp_ident ({txt = Lident id; loc}) -> Some id
+        | _ -> None in
+      add_debug_infos ?info:f_str e enter_apply leave_apply
     | Pexp_while _ ->
       add_debug_infos ?info:fname e enter_while leave_while
     | Pexp_for _ ->
