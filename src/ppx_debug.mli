@@ -1,23 +1,25 @@
+type t =
+  ?info:string -> string list -> Parsetree.expression -> Parsetree.expression
+
 module type DebugIterator = sig
-  val name : string
 
-  val enter_fun : ?info:string -> Parsetree.expression -> Parsetree.expression
-  val leave_fun : ?info:string -> Parsetree.expression -> Parsetree.expression
+  val enter_fun : t
+  val leave_fun : t
 
-  val enter_match : ?info:string -> Parsetree.expression -> Parsetree.expression
-  val leave_match : ?info:string -> Parsetree.expression -> Parsetree.expression
+  val enter_match : t
+  val leave_match : t
 
-  val enter_let : ?info:string -> Parsetree.expression -> Parsetree.expression
-  val leave_let : ?info:string -> Parsetree.expression -> Parsetree.expression
+  val enter_let : t
+  val leave_let : t
 
-  val enter_for : ?info:string -> Parsetree.expression -> Parsetree.expression
-  val leave_for : ?info:string -> Parsetree.expression -> Parsetree.expression
+  val enter_for : t
+  val leave_for : t
 
-  val enter_while : ?info:string -> Parsetree.expression -> Parsetree.expression
-  val leave_while : ?info:string -> Parsetree.expression -> Parsetree.expression
+  val enter_while : t
+  val leave_while : t
 
-  val enter_apply : ?info:string -> Parsetree.expression -> Parsetree.expression
-  val leave_apply : ?info:string -> Parsetree.expression -> Parsetree.expression
+  val enter_apply : t
+  val leave_apply : t
 end
 
 module DefaultIterator : DebugIterator
@@ -26,7 +28,7 @@ module PrintIterator : DebugIterator
 module MakeIterator :
   functor (Iter : DebugIterator) ->
    sig
-     val wrap_debug : Ast_mapper.mapper
+     val wrap_debug : string list -> Ast_mapper.mapper
    end
 
 (**
@@ -41,7 +43,10 @@ val print :
 
 val add_debug_infos :
   ?info:string ->
+  string list ->
   Parsetree.expression ->
-  (?info:string -> Parsetree.expression -> Parsetree.expression) ->
-  (?info:string -> Parsetree.expression -> Parsetree.expression) ->
+  t ->
+  t ->
   Parsetree.expression
+
+val register: string -> (string list -> Ast_mapper.mapper) -> unit
