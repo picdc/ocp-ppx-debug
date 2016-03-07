@@ -2,4 +2,5 @@
 begin library "ppx_debug"
   files = [ "ppx_debug.ml" ]
   requires = [ "compiler-libs.common" ]
+  comp = [ "-annot" "-ppx" "%{ppx_tools_FULL_DST_DIR}%/ppx_metaquot"]
 end

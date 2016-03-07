@@ -5,19 +5,14 @@ open Ast_helper
 
 type t = ?info:string -> string list -> expression -> expression
 
-let print ?info exp prefix =
+let print exp format args =
   let loc = exp.pexp_loc in
-  let msg = match info with None -> prefix | Some f -> prefix ^ " " ^ f in
+  let args = List.map (fun e -> ("", e)) args in
   let print =
     Exp.apply ~loc
       (Exp.ident ~loc { loc; txt = Ldot (Lident "Format", "eprintf"); })
-      ["", Exp.constant ~loc
-        (
-          (Const_string (Printf.sprintf "%s %%s\n%!" msg, None))
-        );
-       "", Exp.ident ~loc
-         ({ loc; txt = Ldot (Lident "Pervasives", "__LOC__")})
-      ] in
+      (("", Exp.constant ~loc (Const_string (format, None))) :: args)
+  in
   print
 
 let add_debug_infos ?info args exp enter leave =
@@ -83,36 +78,72 @@ end
 
 module PrintIterator = struct
 
+  let extract = function None -> "" | Some f -> f
+
   let enter_fun ?info args exp =
-    print ?info exp "Entering fun"
+    let info = extract info in
+    let format = Printf.sprintf "Entering fun %s %%s\n" info in
+    print exp format [([%expr __LOC__])]
   let leave_fun ?info args exp =
-    print ?info exp " Leaving fun"
+    (* let info = extract info in *)
+    (* let format = Printf.sprintf "Leaving fun %s %%s\n" info in *)
+    (* print exp format [("Pervasives", "__LOC__")] *)
+    assert false
 
   let enter_match ?info args exp =
-    print ?info exp "Entering match"
+    let info = extract info in
+  (*   let format = Printf.sprintf "Entering match %s %%s\n" info in *)
+  (*   print exp format [("Pervasives", "__LOC__")] *)
+    assert false
   let leave_match ?info args exp =
-    print ?info exp " Leaving match"
+  (* let info = extract info in *)
+    (* let format = Printf.sprintf "Leaving match %s %%s\n" info in *)
+    (* print exp format [("Pervasives", "__LOC__")] *)
 
+  assert false
   let enter_let ?info args exp =
-    print ?info exp "Entering let"
+    (* let info = extract info in *)
+    (* let format = Printf.sprintf "Entering let %s %%s\n" info in *)
+    (* print exp format [("Pervasives", "__LOC__")] *)
+    assert false
   let leave_let ?info args exp =
-    print ?info exp " Leaving let"
+    (* let info = extract info in *)
+    (* let format = Printf.sprintf "Leaving let %s %%s\n" info in *)
+    (* print exp format [("Pervasives", "__LOC__")] *)
+    assert false
 
   let enter_for ?info args exp =
-    print ?info exp "Entering for"
+    (* let info = extract info in *)
+    (* let format = Printf.sprintf "Entering for %s %%s\n" info in *)
+    (* print exp format [("Pervasives", "__LOC__")] *)
+    assert false
   let leave_for ?info args exp =
-    print ?info exp " Leaving for"
+    (* let info = extract info in *)
+    (* let format = Printf.sprintf "Leaving for %s %%s\n" info in *)
+    (* print exp format [("Pervasives", "__LOC__")] *)
+    assert false
 
   let enter_while ?info args exp =
-    print ?info exp "Entering while"
+    (* let info = extract info in *)
+    (* let format = Printf.sprintf "Entering while %s %%s\n" info in *)
+    (* print exp format [("Pervasives", "__LOC__")] *)
+    assert false
   let leave_while ?info args exp =
-    print ?info exp " Leaving while"
-
+    (* let info = extract info in *)
+    (* let format = Printf.sprintf "Leaving while %s %%s\n" info in *)
+    (* print exp format [("Pervasives", "__LOC__")] *)
+    assert false
 
   let enter_apply ?info args exp =
-    print ?info exp "Calling fun"
+    (* let info = extract info in *)
+    (* let format = Printf.sprintf "Calling fun %s %%s\n" info in *)
+    (* print exp format [("Pervasives", "__LOC__")] *)
+    assert false
   let leave_apply ?info args exp =
-    print ?info exp "End of call of"
+    (* let info = extract info in *)
+    (* let format = Printf.sprintf "End of call of %s %%s\n" info in *)
+    (* print exp format [("Pervasives", "__LOC__")] *)
+    assert false
 
 end
 
@@ -173,7 +204,7 @@ end = struct
       add_debug_infos ?info:fname args e enter_while leave_while
     | Pexp_for _ ->
       add_debug_infos ?info:fname args e enter_for leave_for
-    | _ ->  default_mapper.expr m e
+    | _ -> default_mapper.expr m e
 
   and wrap_value_binding ?fname args m vb =
     let fname =
