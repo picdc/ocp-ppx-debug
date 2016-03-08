@@ -9,29 +9,30 @@ let print ?info exp prefix =
   let loc = exp.pexp_loc in
   let msg = match info with None -> prefix | Some f -> prefix ^ " " ^ f in
   let print =
-    Exp.apply ~loc
-      (Exp.ident ~loc { loc; txt = Ldot (Lident "Format", "eprintf"); })
-      ["", Exp.constant ~loc
-        (
-          (Const_string (Printf.sprintf "%s %%s\n%!" msg, None))
-        );
-       "", Exp.ident ~loc
-         ({ loc; txt = Ldot (Lident "Pervasives", "__LOC__")})
-      ] in
+    Exp.sequence
+      (Exp.apply ~loc
+         (Exp.ident ~loc { loc; txt = Ldot (Lident "Format", "eprintf"); })
+         ["", Exp.constant ~loc
+            (
+              (Const_string (Printf.sprintf "%s %%s\n%!" msg, None))
+            );
+          "", Exp.ident ~loc
+            ({ loc; txt = Ldot (Lident "Pervasives", "__LOC__")})
+         ])
+      exp
+  in
   print
 
 let add_debug_infos ?info args exp enter leave =
   let loc = exp.pexp_loc in
-  let enter = enter ?info args exp in
-  let leave = leave ?info args exp in
   let exp' =
     Exp.let_ ~loc Nonrecursive
       [Vb.mk ~loc
           (Pat.var ~loc {loc; txt = "expr"})
           exp] @@
-      Exp.sequence ~loc leave @@ Exp.ident {loc; txt = Lident "expr"}
+      leave ?info args @@ Exp.ident {loc; txt = Lident "expr"}
   in
-  Exp.sequence ~loc enter exp'
+  enter ?info args exp'
 
 module type DebugIterator = sig
 
@@ -61,23 +62,23 @@ module DefaultIterator = struct
     let loc = { txt = Lident "()"; loc = exp.pexp_loc} in
     { exp with pexp_desc = Pexp_construct (loc, None) }
 
-  let enter_fun ?info args exp = dummy exp
-  let leave_fun ?info args exp = dummy exp
+  let enter_fun ?info args exp = exp
+  let leave_fun ?info args exp = exp
 
-  let enter_match ?info args exp = dummy exp
-  let leave_match ?info args exp = dummy exp
+  let enter_match ?info args exp = exp
+  let leave_match ?info args exp = exp
 
-  let enter_let ?info args exp = dummy exp
-  let leave_let ?info args exp = dummy exp
+  let enter_let ?info args exp = exp
+  let leave_let ?info args exp = exp
 
-  let enter_for ?info args exp = dummy exp
-  let leave_for ?info args exp = dummy exp
+  let enter_for ?info args exp = exp
+  let leave_for ?info args exp = exp
 
-  let enter_while ?info args exp = dummy exp
-  let leave_while ?info args exp = dummy exp
+  let enter_while ?info args exp = exp
+  let leave_while ?info args exp = exp
 
-  let enter_apply ?info args exp = dummy exp
-  let leave_apply ?info args exp = dummy exp
+  let enter_apply ?info args exp = exp
+  let leave_apply ?info args exp = exp
 
 end
 
