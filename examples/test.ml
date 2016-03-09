@@ -11,6 +11,9 @@ let x = 50
 
 let z = ()
 
+let m =
+  match 42 with 0 -> 0 | _ -> 1
+
 let it min max =
   for i=min to max do
     Printf.eprintf "%d " i

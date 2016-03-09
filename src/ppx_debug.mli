@@ -9,6 +9,9 @@ module type DebugIterator = sig
   val enter_match : t
   val leave_match : t
 
+  val enter_case : t
+  val leave_case : t
+
   val enter_let : t
   val leave_let : t
 
@@ -17,6 +20,15 @@ module type DebugIterator = sig
 
   val enter_while : t
   val leave_while : t
+
+  val enter_try : t
+  val leave_try : t
+
+  val enter_try_body : t
+  val leave_try_body : t
+
+  val enter_try_handler : t
+  val leave_try_handler : t
 
   val enter_apply : t
   val leave_apply : t
