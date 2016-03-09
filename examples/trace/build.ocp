@@ -1,0 +1,19 @@
+begin program "ppx-trace";
+  files = [ "ppx_trace.ml" ];
+  requires = [ "ppx_debug" ];
+end;;
+
+begin program "test_trace";
+  files = [
+    "debug.ml";
+    "test_trace.ml"
+      (comp += [
+          "-ppx"
+            "%{ppx-trace_FULL_DST_DIR}%/ppx-trace.asm"])];
+  comp_requires = [ "ppx-trace:asm" ];
+  requires = [ "ppx-trace" ];
+end;;
+
+begin program "trace-tree";
+  files = [ "gen_tree.ml" ];
+end;
