@@ -227,11 +227,12 @@ end = struct
   open Iter
 
   let rec wrap_sequences ?fname args m e =
+    let loc = e.pexp_loc in
     match e.pexp_desc with
     | Pexp_sequence (e1, e2) ->
       let e1' = default_mapper.expr m e1 in
       let e2' = default_mapper.expr m e2 in
-      Exp.sequence e1' e2'
+      Exp.sequence ~loc e1' e2'
     | _ -> default_mapper.expr m e
 
   and wrap_case_generic ?fname args m c enter_case leave_case =
@@ -254,48 +255,55 @@ end = struct
   and wrap_case ?fname args m c =
     wrap_case_generic ?fname args m c enter_case leave_case
 
-  and wrap_expr ?fname args m e =
-    match e.pexp_desc with
+  and wrap_expr ?fname args m exp =
+    let loc = exp.pexp_loc in
+    match exp.pexp_desc with
       Pexp_function
         [{pc_rhs = { pexp_desc = Pexp_function _ | Pexp_fun _ } as e'} as c'] ->
-      Exp.function_ [{c' with pc_rhs = wrap_expr args m e' ?fname}]
+      Exp.function_ ~loc [{c' with pc_rhs = wrap_expr args m e' ?fname}]
+    | Pexp_function cl ->
+      let cl' =
+        List.map (fun c ->
+            wrap_case_generic ?fname args m c enter_fun leave_fun) cl in
+      Exp.function_ ~loc cl'
     | Pexp_fun (l, eopt, p, ({pexp_desc = Pexp_function _ | Pexp_fun _ } as e'))
       ->
-      Exp.fun_ l eopt p (wrap_expr ?fname args m e')
-    | Pexp_fun (l, eopt, p, e') ->
-      Exp.fun_ l eopt p
-        (add_debug_infos ?info:fname args e' enter_fun leave_fun)
+      Exp.fun_ ~loc l eopt p (wrap_expr ?fname args m e')
+    | Pexp_fun (l, eopt, p, ebody) ->
+      let ewrap = wrap_expr ?fname args m ebody in
+      Exp.fun_ ~loc l eopt p
+        (add_debug_infos ?info:fname args ewrap enter_fun leave_fun)
     | Pexp_apply (f, es) ->
       let f_str =
         match f.pexp_desc with
         | Pexp_ident ({txt = Lident id; loc}) -> Some id
         | _ -> None in
       let e =
-        Exp.apply ~loc:e.pexp_loc
+        Exp.apply ~loc
           (wrap_expr ?fname args m f)
-          (List.map (fun (l, e) -> l, wrap_expr ?fname args m e) es) in
+          (List.map (fun (l, e') -> l, wrap_expr ?fname args m e') es) in
       add_debug_infos ?info:f_str args e enter_apply leave_apply
     | Pexp_while _ ->
-      add_debug_infos ?info:fname args e enter_while leave_while
+      add_debug_infos ?info:fname args exp enter_while leave_while
     | Pexp_for _ ->
-      add_debug_infos ?info:fname args e enter_for leave_for
+      add_debug_infos ?info:fname args exp enter_for leave_for
     | Pexp_match (e', cs) ->
       let e =
-        Exp.match_ ~loc:e.pexp_loc
+        Exp.match_ ~loc
           (wrap_expr ?fname args m e')
           (List.map (wrap_case ?fname args m) cs) in
       add_debug_infos ?info:fname args e enter_match leave_match
     | Pexp_try (e', cs) ->
       let e =
-        Exp.try_ ~loc:e.pexp_loc
+        Exp.try_ ~loc
           (wrap_try_body ?fname args m e')
           (List.map (wrap_try_handler ?fname args m) cs) in
       add_debug_infos ?info:fname args e enter_try leave_try
     | Pexp_let (rf, vbs, e') ->
-      Exp.let_ ~loc:e.pexp_loc rf
+      Exp.let_ ~loc rf
         (List.map (wrap_value_binding ?fname args m) vbs)
-        (wrap_expr ?fname args m e)
-    | _ ->  default_mapper.expr m e
+        (wrap_expr ?fname args m e')
+    | _ ->  default_mapper.expr m exp
 
   and wrap_try_body ?fname args m e =
     add_debug_infos ?info:fname args
