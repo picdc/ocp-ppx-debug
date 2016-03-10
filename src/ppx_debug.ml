@@ -84,66 +84,56 @@ module PrintIterator = struct
     let info = extract info in
     let format = Printf.sprintf "Entering fun %s %%s\n" info in
     print exp format [([%expr __LOC__])]
+
   let leave_fun ?info args exp =
-    (* let info = extract info in *)
-    (* let format = Printf.sprintf "Leaving fun %s %%s\n" info in *)
-    (* print exp format [("Pervasives", "__LOC__")] *)
-    assert false
+    let info = extract info in
+    let format = Printf.sprintf "Leaving fun %s %%s\n" info in
+    print exp format [([%expr __LOC__])]
 
   let enter_match ?info args exp =
     let info = extract info in
-  (*   let format = Printf.sprintf "Entering match %s %%s\n" info in *)
-  (*   print exp format [("Pervasives", "__LOC__")] *)
-    assert false
+    let format = Printf.sprintf "Entering match %s %%s\n" info in
+    print exp format [([%expr __LOC__])]
   let leave_match ?info args exp =
-  (* let info = extract info in *)
-    (* let format = Printf.sprintf "Leaving match %s %%s\n" info in *)
-    (* print exp format [("Pervasives", "__LOC__")] *)
+    let info = extract info in
+    let format = Printf.sprintf "Leaving match %s %%s\n" info in
+    print exp format [([%expr __LOC__])]
 
-  assert false
   let enter_let ?info args exp =
-    (* let info = extract info in *)
-    (* let format = Printf.sprintf "Entering let %s %%s\n" info in *)
-    (* print exp format [("Pervasives", "__LOC__")] *)
-    assert false
+    let info = extract info in
+    let format = Printf.sprintf "Entering let %s %%s\n" info in
+    print exp format [([%expr __LOC__])]
   let leave_let ?info args exp =
-    (* let info = extract info in *)
-    (* let format = Printf.sprintf "Leaving let %s %%s\n" info in *)
-    (* print exp format [("Pervasives", "__LOC__")] *)
-    assert false
+    let info = extract info in
+    let format = Printf.sprintf "Leaving let %s %%s\n" info in
+    print exp format [([%expr __LOC__])]
 
   let enter_for ?info args exp =
-    (* let info = extract info in *)
-    (* let format = Printf.sprintf "Entering for %s %%s\n" info in *)
-    (* print exp format [("Pervasives", "__LOC__")] *)
-    assert false
+    let info = extract info in
+    let format = Printf.sprintf "Entering for %s %%s\n" info in
+    print exp format [([%expr __LOC__])]
   let leave_for ?info args exp =
-    (* let info = extract info in *)
-    (* let format = Printf.sprintf "Leaving for %s %%s\n" info in *)
-    (* print exp format [("Pervasives", "__LOC__")] *)
-    assert false
+    let info = extract info in
+    let format = Printf.sprintf "Leaving for %s %%s\n" info in
+    print exp format [([%expr __LOC__])]
 
   let enter_while ?info args exp =
-    (* let info = extract info in *)
-    (* let format = Printf.sprintf "Entering while %s %%s\n" info in *)
-    (* print exp format [("Pervasives", "__LOC__")] *)
-    assert false
+    let info = extract info in
+    let format = Printf.sprintf "Entering while %s %%s\n" info in
+    print exp format [([%expr __LOC__])]
   let leave_while ?info args exp =
-    (* let info = extract info in *)
-    (* let format = Printf.sprintf "Leaving while %s %%s\n" info in *)
-    (* print exp format [("Pervasives", "__LOC__")] *)
-    assert false
+    let info = extract info in
+    let format = Printf.sprintf "Leaving while %s %%s\n" info in
+    print exp format [([%expr __LOC__])]
 
   let enter_apply ?info args exp =
-    (* let info = extract info in *)
-    (* let format = Printf.sprintf "Calling fun %s %%s\n" info in *)
-    (* print exp format [("Pervasives", "__LOC__")] *)
-    assert false
+    let info = extract info in
+    let format = Printf.sprintf "Calling fun %s %%s\n" info in
+    print exp format [([%expr __LOC__])]
   let leave_apply ?info args exp =
-    (* let info = extract info in *)
-    (* let format = Printf.sprintf "End of call of %s %%s\n" info in *)
-    (* print exp format [("Pervasives", "__LOC__")] *)
-    assert false
+    let info = extract info in
+    let format = Printf.sprintf "End of call of %s %%s\n" info in
+    print exp format [([%expr __LOC__])]
 
 end
 

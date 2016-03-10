@@ -1,7 +1,7 @@
 begin program "my_ppx"
   files = [ "my_ppx.ml" ]
   requires = [ "ppx_debug" ]
-  comp = [ "-annot" ]
+  comp = [ "-annot" "-ppx" "%{ppx_tools_FULL_DST_DIR}%/ppx_metaquot"]
 end
 
 begin program "test_ppx";

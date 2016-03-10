@@ -41,7 +41,7 @@ module MakeIterator :
 val print :
   Parsetree.expression ->
   string ->
-  (string * string) list ->
+  Parsetree.expression list ->
   Parsetree.expression
 
 val add_debug_infos :
