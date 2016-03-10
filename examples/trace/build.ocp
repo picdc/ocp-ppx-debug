@@ -16,4 +16,4 @@ end;;
 
 begin program "trace-tree";
   files = [ "gen_tree.ml" ];
-end;
+end;;

@@ -5,7 +5,7 @@ let open_list id info fmt =
   Printf.fprintf fmt "<li>%s\n<ul id=\"%d\">\n" info id
 
 let close_list info fmt =
-  Printf.fprintf fmt "</li>\n%s</ul>\n" info
+  Printf.fprintf fmt "</ul>\n%s</li>\n" info
 
 let previous : int list ref = ref []
 
@@ -17,7 +17,7 @@ let rec close_previous id info oc =
   match !previous with
     [] -> raise Ill_formed_output
   | id' :: rem ->
-    close_list (if id' = id then info else "Possible exception caught") oc;
+    close_list (if id' = id then info else "Unclosed block, possible exception raised") oc;
     previous := rem;
     if id <> id' then close_previous id info oc 
 
@@ -46,7 +46,13 @@ let parse_line ic fmt =
   else raise Ill_formed_output
 
 let read_file ic fmt =
-  output_string fmt "<html><body>\n";
+  output_string fmt {|
+<html>
+    <head><script type="text/javascript" src="CollapsibleLists.js"></script>
+</head>
+<body onLoad="CollapsibleLists.apply()">
+<ul class="collapsibleList">
+|};
   try
     while true do parse_line ic fmt done
   with End_of_file ->
