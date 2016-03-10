@@ -5,22 +5,15 @@ open Ast_helper
 
 type t = ?info:string -> string list -> expression -> expression
 
-let print ?info exp prefix =
+let print exp format args =
   let loc = exp.pexp_loc in
-  let msg = match info with None -> prefix | Some f -> prefix ^ " " ^ f in
+  let args = List.map (fun e -> ("", e)) args in
   let print =
-    Exp.sequence
+    Exp.sequence ~loc
       (Exp.apply ~loc
-         (Exp.ident ~loc { loc; txt = Ldot (Lident "Format", "eprintf"); })
-         ["", Exp.constant ~loc
-            (
-              (Const_string (Printf.sprintf "%s %%s\n%!" msg, None))
-            );
-          "", Exp.ident ~loc
-            ({ loc; txt = Ldot (Lident "Pervasives", "__LOC__")})
-         ])
-      exp
-  in
+         (Exp.ident ~loc { loc; txt = Ldot (Lident "Format", "eprintf")})
+         (("", Exp.constant ~loc (Const_string (format, None))) :: args))
+      exp in
   print
 
 let add_debug_infos ?info args exp enter leave =
@@ -30,7 +23,7 @@ let add_debug_infos ?info args exp enter leave =
       [Vb.mk ~loc
           (Pat.var ~loc {loc; txt = "expr"})
           exp] @@
-      leave ?info args @@ Exp.ident {loc; txt = Lident "expr"}
+      leave ?info args @@ Exp.ident ~loc {loc; txt = Lident "expr"}
   in
   enter ?info args exp'
 
@@ -58,10 +51,6 @@ end
 
 module DefaultIterator = struct
 
-  let dummy exp =
-    let loc = { txt = Lident "()"; loc = exp.pexp_loc} in
-    { exp with pexp_desc = Pexp_construct (loc, None) }
-
   let enter_fun ?info args exp = exp
   let leave_fun ?info args exp = exp
 
@@ -84,36 +73,75 @@ end
 
 module PrintIterator = struct
 
+  let extract = function None -> "" | Some f -> f
+
   let enter_fun ?info args exp =
-    print ?info exp "Entering fun"
+    let info = extract info in
+    let format = Printf.sprintf "@,@[<v 2>Entering fun %s %%s" info in
+    let loc = exp.pexp_loc in
+    print exp format [Exp.ident ~loc { loc; txt = Ldot (Lident "Pervasives", "__LOC__")}]
+
   let leave_fun ?info args exp =
-    print ?info exp " Leaving fun"
+    let info = extract info in
+    let format = Printf.sprintf "@]@,Leaving fun %s %%s" info in
+    let loc = exp.pexp_loc in
+    print exp format [Exp.ident ~loc { loc; txt = Ldot (Lident "Pervasives", "__LOC__")}]
 
   let enter_match ?info args exp =
-    print ?info exp "Entering match"
+    let info = extract info in
+    let format = Printf.sprintf "@,@[<v 2>Entering match %s %%s" info in
+    let loc = exp.pexp_loc in
+    print exp format [Exp.ident ~loc { loc; txt = Ldot (Lident "Pervasives", "__LOC__")}]
   let leave_match ?info args exp =
-    print ?info exp " Leaving match"
+    let info = extract info in
+    let format = Printf.sprintf "@]@,Leaving match %s %%s" info in
+    let loc = exp.pexp_loc in
+    print exp format [Exp.ident ~loc { loc; txt = Ldot (Lident "Pervasives", "__LOC__")}]
 
   let enter_let ?info args exp =
-    print ?info exp "Entering let"
+    let info = extract info in
+    let format = Printf.sprintf "@,@[<v 2>Entering let %s %%s" info in
+    let loc = exp.pexp_loc in
+    print exp format [Exp.ident ~loc { loc; txt = Ldot (Lident "Pervasives", "__LOC__")}]
+
   let leave_let ?info args exp =
-    print ?info exp " Leaving let"
+    let info = extract info in
+    let format = Printf.sprintf "@]@,Leaving let %s %%s" info in
+    let loc = exp.pexp_loc in
+    print exp format [Exp.ident ~loc { loc; txt = Ldot (Lident "Pervasives", "__LOC__")}]
 
   let enter_for ?info args exp =
-    print ?info exp "Entering for"
+    let info = extract info in
+    let format = Printf.sprintf "@,@[<v 2>Entering for %s %%s" info in
+    let loc = exp.pexp_loc in
+    print exp format [Exp.ident ~loc { loc; txt = Ldot (Lident "Pervasives", "__LOC__")}]
   let leave_for ?info args exp =
-    print ?info exp " Leaving for"
+    let info = extract info in
+    let format = Printf.sprintf "@]@,Leaving for %s %%s" info in
+    let loc = exp.pexp_loc in
+    print exp format [Exp.ident ~loc { loc; txt = Ldot (Lident "Pervasives", "__LOC__")}]
 
   let enter_while ?info args exp =
-    print ?info exp "Entering while"
+    let info = extract info in
+    let format = Printf.sprintf "@,@[<v 2>Entering while %s %%s" info in
+    let loc = exp.pexp_loc in
+    print exp format [Exp.ident ~loc { loc; txt = Ldot (Lident "Pervasives", "__LOC__")}]
   let leave_while ?info args exp =
-    print ?info exp " Leaving while"
-
+    let info = extract info in
+    let format = Printf.sprintf "@]@,Leaving while %s %%s" info in
+    let loc = exp.pexp_loc in
+    print exp format [Exp.ident ~loc { loc; txt = Ldot (Lident "Pervasives", "__LOC__")}]
 
   let enter_apply ?info args exp =
-    print ?info exp "Calling fun"
+    let info = extract info in
+    let format = Printf.sprintf "@,@[<v 2>Calling fun %s %%s" info in
+    let loc = exp.pexp_loc in
+    print exp format [Exp.ident ~loc { loc; txt = Ldot (Lident "Pervasives", "__LOC__")}]
   let leave_apply ?info args exp =
-    print ?info exp "End of call of"
+    let info = extract info in
+    let format = Printf.sprintf "@]@,End of call of %s %%s" info in
+    let loc = exp.pexp_loc in
+    print exp format [Exp.ident ~loc { loc; txt = Ldot (Lident "Pervasives", "__LOC__")}]
 
 end
 
@@ -148,9 +176,9 @@ end = struct
     { c' with
       pc_rhs =
         let info = match fname with
-            None -> Some (Format.asprintf "case: %a" Pprintast.pattern c.pc_lhs)
+            None -> Some (Format.asprintf "case: @[<h>%a@]" Pprintast.pattern c.pc_lhs)
           | Some s ->
-            Some (Format.asprintf "%s, case: %a" s Pprintast.pattern c.pc_lhs) in
+            Some (Format.asprintf "%s, case: @[<h>%a@]" s Pprintast.pattern c.pc_lhs) in
         add_debug_infos ?info args c'.pc_rhs enter_match leave_match}
 
   and wrap_expr ?fname args m e =
@@ -174,7 +202,7 @@ end = struct
       add_debug_infos ?info:fname args e enter_while leave_while
     | Pexp_for _ ->
       add_debug_infos ?info:fname args e enter_for leave_for
-    | _ ->  default_mapper.expr m e
+    | _ -> default_mapper.expr m e
 
   and wrap_value_binding ?fname args m vb =
     let fname =

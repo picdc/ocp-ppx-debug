@@ -39,7 +39,7 @@ module MakeIterator :
    @string: message to prefix
   *)
 val print :
-  ?info:string -> Parsetree.expression -> string -> Parsetree.expression
+  Parsetree.expression -> string -> Parsetree.expression list -> Parsetree.expression
 
 val add_debug_infos :
   ?info:string ->
